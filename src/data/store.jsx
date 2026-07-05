@@ -11,8 +11,6 @@ export const useStore = () => useContext(StoreContext)
 
 const MODE = isFirebaseConfigured() ? 'firebase' : SYNC_URL ? 'cloud' : 'local'
 
-let migrationAsked = false
-
 export function StoreProvider({ children }) {
   const [adapter, setAdapter] = useState(
     MODE === 'local' ? localAdapter : MODE === 'cloud' ? remoteAdapter : null,
@@ -40,28 +38,12 @@ export function StoreProvider({ children }) {
   // Load all data once storage is usable (local: immediately, cloud/firebase: after login).
   useEffect(() => {
     if (!adapter || (MODE === 'firebase' && !user) || (MODE === 'cloud' && !hasToken())) return
-    adapter.loadAll().then(async (all) => {
-      let use = all
-      // First cloud login from a device that already has records saved on it:
-      // offer to move them up so every device sees them.
-      const cloudEmpty = !all.patients.length && !all.visits.length &&
-        !all.medicines.length && !all.txns.length
-      if (MODE === 'cloud' && cloudEmpty && !migrationAsked) {
-        migrationAsked = true
-        try {
-          const local = JSON.parse(localStorage.getItem('advait-clinic-data'))
-          const hasLocal = local && (local.patients?.length || local.medicines?.length || local.txns?.length)
-          if (hasLocal && confirm('This device has clinic records saved on it. Move them to the cloud so all devices can see them?')) {
-            await adapter.replaceAll(local)
-            use = { ...all, ...local }
-          }
-        } catch { /* no local data */ }
-      }
+    adapter.loadAll().then((all) => {
       setData({
-        patients: use.patients || [], visits: use.visits || [],
-        medicines: use.medicines || [], txns: use.txns || [],
+        patients: all.patients || [], visits: all.visits || [],
+        medicines: all.medicines || [], txns: all.txns || [],
       })
-      if (use.settings) setSettingsState({ ...DEFAULT_SETTINGS, ...use.settings })
+      if (all.settings) setSettingsState({ ...DEFAULT_SETTINGS, ...all.settings })
       setReady(true)
     })
   }, [adapter, user])
