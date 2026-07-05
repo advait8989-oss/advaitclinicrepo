@@ -8,22 +8,32 @@ history, medicine inventory, money tracking, and WhatsApp messages to patients.
 | Section | What it does |
 | --- | --- |
 | **Dashboard** | Today's patients & collection, follow-ups due (with one-click WhatsApp reminders), medicines running low |
-| **Patients** | Full patient register — name, mobile, age, address, medical history, and a visit timeline (symptoms, remedy, potency, dosage, fee, follow-up date) |
+| **Patients** | Full patient register — name, **case paper number**, mobile, age, address, medical history, and a visit timeline (symptoms, remedy, potency, dosage, fee, follow-up date). Search by name, case number, or phone |
 | **Medicines** | Inventory with stock counts, +/− buttons for daily use, automatic **to-buy list** when stock runs low (copy it or WhatsApp it to the supplier) |
-| **Money** | Every rupee in and out — consultation fees are added automatically when a visit is saved (first visit is categorised as "New Patient"); add salaries, rent, purchases; daily/weekly/monthly totals and a 14-day chart |
+| **Money** | Every rupee in and out — consultation fees are added automatically when a visit is saved (first visit is categorised as "New Patient"); add salaries, rent, purchases; daily/weekly/monthly totals, a 14-day chart, and a **pending payments** list for patients who pay later |
 | **UPI payments** | "Collect payment" (on a patient's page or the Money page) shows a QR code for any amount — patient scans with GPay/PhonePe/Paytm and pays straight to the clinic's bank account, zero fees. Set the UPI ID once in Settings. Can also send a payment request on WhatsApp |
 | **Help** | A built-in plain-language guide to every feature |
 | **Messages** | Write one message, pick patients, and send personalised WhatsApp messages one tap at a time ({name} is filled in automatically). Photos: attach inside WhatsApp before sending |
 | **Settings** | Clinic profile, default fee, backup download/import, sample data |
 
-## Live URL
+## Live URLs
 
-The app is deployed on Railway at:
+The app is hosted **free on GitHub Pages** (share this one):
 
-**<https://advait-clinic-production.up.railway.app>**
+**<https://advait8989-oss.github.io/advaitclinicrepo/>**
 
-Open it on her phone → browser menu → **Add to Home Screen** — it installs like a
+A second copy runs on Railway (paid account): <https://advait-clinic-production.up.railway.app>
+
+Open the link on her phone → browser menu → **Add to Home Screen** — it installs like a
 real app with the clinic's leaf icon and works offline after the first open.
+
+Source code: <https://github.com/advait8989-oss/advaitclinicrepo>
+
+### Hosting on Vercel instead (optional, 2 minutes)
+
+The repo is Vercel-ready. Go to <https://vercel.com/new>, sign in with the GitHub
+account, pick `advaitclinicrepo`, press Deploy — Vite is auto-detected, no settings
+needed. You get `advaitclinicrepo.vercel.app` for free.
 
 ⚠️ Note: until Firebase is connected, data lives **per device** — records entered on
 the phone stay on the phone, records on the laptop stay on the laptop. Connect
@@ -32,7 +42,13 @@ Firebase (below) to share one database across devices.
 Redeploying after code changes:
 
 ```bash
-cd ~/homeoclinic && railway up --detach --service advait-clinic
+export PATH="$HOME/.local/node/bin:$PATH"
+cd ~/homeoclinic && npm run build
+# GitHub Pages (the free shared link):
+cd dist && rm -rf .git && git init -qb gh-pages && git add -A && git commit -qm deploy \
+  && git push -f https://github.com/advait8989-oss/advaitclinicrepo.git gh-pages && cd ..
+# Railway copy (optional):
+railway up --detach --service advait-clinic
 ```
 
 ## Running the app
