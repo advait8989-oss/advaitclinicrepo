@@ -60,6 +60,7 @@ export default function Help() {
 
       <Section icon="🛟" title="Keeping your data safe">
         <ul>
+          <li>Your records live safely in the <b>cloud</b> — open the app on any phone or computer, type the clinic password once, and everything is there.</li>
           <li>Once a week, go to <Link to="/settings">Settings</Link> and press <b>⬇️ Download backup</b>. Keep the file in Google Drive or email it to yourself.</li>
           <li>If anything ever happens to the computer, <b>⬆️ Import backup</b> brings everything back.</li>
         </ul>

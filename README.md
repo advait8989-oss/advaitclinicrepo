@@ -35,9 +35,8 @@ The repo is Vercel-ready. Go to <https://vercel.com/new>, sign in with the GitHu
 account, pick `advaitclinicrepo`, press Deploy — Vite is auto-detected, no settings
 needed. You get `advaitclinicrepo.vercel.app` for free.
 
-⚠️ Note: until Firebase is connected, data lives **per device** — records entered on
-the phone stay on the phone, records on the laptop stay on the laptop. Connect
-Firebase (below) to share one database across devices.
+The app asks for the **clinic password** on first open — the same records then appear
+on every device (see "Where is the data?" below).
 
 Redeploying after code changes:
 
@@ -65,13 +64,29 @@ To make a production build (deployable to Firebase Hosting, Netlify, Vercel…):
 npm run build      # output goes to dist/
 ```
 
-## Where is the data?
+## Where is the data? (Cloud sync — ACTIVE)
 
-Out of the box the app runs in **"This Device" mode** — everything is stored in the
-browser on this computer. It works fully offline. **Download a backup from Settings
-regularly** (weekly is good).
+**Cloud sync is on.** The app opens with a single **clinic password**; every device
+that signs in sees the same records instantly.
 
-## Connecting Firebase (cloud sync — recommended)
+- Sync server: `server/index.js`, deployed on Railway as service **sync-api**
+  (<https://sync-api-production-2b8b.up.railway.app>), storing one JSON file on a
+  persistent volume at `/data/clinic.json`.
+- The app talks to it via `src/data/remoteAdapter.js`; the server URL lives in
+  `src/sync-config.js` (set it to `''` to fall back to on-device storage).
+- **Clinic password**: set as the `CLINIC_PASSWORD` variable on the sync-api service.
+  To change it: `railway variable set "CLINIC_PASSWORD=new-password" --service sync-api`
+  (everyone must sign in again afterwards).
+- Auth: the password is exchanged for a bearer token (HMAC, no user database);
+  all data endpoints reject requests without it. Traffic is HTTPS end to end.
+- Still take weekly backups from Settings — belt and braces.
+
+Redeploying the sync server after changes: copy `server/` contents to an empty
+folder, `railway link -p <project-id> -s sync-api`, then `railway up --detach -y`
+(deploying from a subfolder of the linked repo uploads the whole repo — that's why
+the copy).
+
+## Connecting Firebase instead (optional alternative)
 
 The free Firebase plan is far more than a clinic needs (50k reads/20k writes per day).
 Once connected, data is backed up in the cloud automatically and the same records can

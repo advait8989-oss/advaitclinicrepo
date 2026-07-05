@@ -1,18 +1,24 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { isFirebaseConfigured } from '../firebase-config'
+import { SYNC_URL } from '../sync-config'
 import { localAdapter } from './localAdapter'
+import { remoteAdapter, hasToken } from './remoteAdapter'
 import { uid, DEFAULT_SETTINGS } from './helpers'
 import { makeSampleData } from './sample'
 
 const StoreContext = createContext(null)
 export const useStore = () => useContext(StoreContext)
 
-const MODE = isFirebaseConfigured() ? 'firebase' : 'local'
+const MODE = isFirebaseConfigured() ? 'firebase' : SYNC_URL ? 'cloud' : 'local'
+
+let migrationAsked = false
 
 export function StoreProvider({ children }) {
-  const [adapter, setAdapter] = useState(MODE === 'local' ? localAdapter : null)
+  const [adapter, setAdapter] = useState(
+    MODE === 'local' ? localAdapter : MODE === 'cloud' ? remoteAdapter : null,
+  )
   const [user, setUser] = useState(null)
-  const [authReady, setAuthReady] = useState(MODE === 'local')
+  const [authReady, setAuthReady] = useState(MODE !== 'firebase')
   const [ready, setReady] = useState(false)
   const [data, setData] = useState({ patients: [], visits: [], medicines: [], txns: [] })
   const [settings, setSettingsState] = useState(DEFAULT_SETTINGS)
@@ -31,15 +37,31 @@ export function StoreProvider({ children }) {
     return () => unsub && unsub()
   }, [])
 
-  // Load all data once storage is usable (local: immediately, firebase: after login).
+  // Load all data once storage is usable (local: immediately, cloud/firebase: after login).
   useEffect(() => {
-    if (!adapter || (MODE === 'firebase' && !user)) return
-    adapter.loadAll().then((all) => {
+    if (!adapter || (MODE === 'firebase' && !user) || (MODE === 'cloud' && !hasToken())) return
+    adapter.loadAll().then(async (all) => {
+      let use = all
+      // First cloud login from a device that already has records saved on it:
+      // offer to move them up so every device sees them.
+      const cloudEmpty = !all.patients.length && !all.visits.length &&
+        !all.medicines.length && !all.txns.length
+      if (MODE === 'cloud' && cloudEmpty && !migrationAsked) {
+        migrationAsked = true
+        try {
+          const local = JSON.parse(localStorage.getItem('advait-clinic-data'))
+          const hasLocal = local && (local.patients?.length || local.medicines?.length || local.txns?.length)
+          if (hasLocal && confirm('This device has clinic records saved on it. Move them to the cloud so all devices can see them?')) {
+            await adapter.replaceAll(local)
+            use = { ...all, ...local }
+          }
+        } catch { /* no local data */ }
+      }
       setData({
-        patients: all.patients, visits: all.visits,
-        medicines: all.medicines, txns: all.txns,
+        patients: use.patients || [], visits: use.visits || [],
+        medicines: use.medicines || [], txns: use.txns || [],
       })
-      if (all.settings) setSettingsState({ ...DEFAULT_SETTINGS, ...all.settings })
+      if (use.settings) setSettingsState({ ...DEFAULT_SETTINGS, ...use.settings })
       setReady(true)
     })
   }, [adapter, user])

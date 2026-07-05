@@ -76,7 +76,24 @@ export default function Settings() {
 
       <div className="card">
         <h2>Cloud sync</h2>
-        {mode === 'local' ? (
+        {mode === 'cloud' ? (
+          <>
+            <p>
+              ☁️ <b>Cloud sync is ON.</b> Every device that opens the app with the clinic
+              password sees the same patients, medicines and money records — and everything
+              is safely stored away from the clinic computer.
+            </p>
+            <button
+              className="btn secondary"
+              onClick={async () => {
+                const fb = await import('../data/remoteAdapter')
+                fb.cloudLogout()
+              }}
+            >
+              Sign out on this device
+            </button>
+          </>
+        ) : mode === 'local' ? (
           <>
             <p>
               📍 <b>Data is currently saved only on this device</b> (in this browser).

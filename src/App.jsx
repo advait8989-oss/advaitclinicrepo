@@ -1,6 +1,8 @@
 import { NavLink, Routes, Route } from 'react-router-dom'
 import { useStore } from './data/store'
+import { hasToken } from './data/remoteAdapter'
 import Login from './pages/Login'
+import CloudLogin from './pages/CloudLogin'
 import Dashboard from './pages/Dashboard'
 import Patients from './pages/Patients'
 import PatientDetail from './pages/PatientDetail'
@@ -25,6 +27,7 @@ export default function App() {
 
   if (!authReady) return <div className="fullpage-note">Loading…</div>
   if (mode === 'firebase' && !user) return <Login />
+  if (mode === 'cloud' && !hasToken()) return <CloudLogin />
   if (!ready) return <div className="fullpage-note">Loading your clinic data…</div>
 
   return (
