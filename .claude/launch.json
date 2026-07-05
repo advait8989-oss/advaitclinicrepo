@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "clinic",
+      "runtimeExecutable": "/Users/dhakane/.local/node/bin/npm",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "/Users/dhakane/homeoclinic",
+      "port": 5173
+    }
+  ]
+}
