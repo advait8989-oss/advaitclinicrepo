@@ -1,23 +1,12 @@
-// ─────────────────────────────────────────────────────────────
-// FIREBASE SETUP (optional but recommended — see README.md)
-//
-// Until you fill this in, the app runs in "This Device" mode and
-// saves everything in the browser on this computer.
-//
-// To sync data to the cloud (safe backup + use from phone/laptop):
-//   1. Go to https://console.firebase.google.com and create a project
-//   2. Add a Web App, copy the firebaseConfig it shows you
-//   3. Paste the values below (replace the empty strings)
-//   4. In the console enable: Authentication → Email/Password,
-//      and Firestore Database
-// ─────────────────────────────────────────────────────────────
+// Firebase project: advait-clinic-app (console.firebase.google.com)
+// Free Spark plan — no billing enabled, cannot be charged.
 export const firebaseConfig = {
-  apiKey: '',
-  authDomain: '',
-  projectId: '',
-  storageBucket: '',
-  messagingSenderId: '',
-  appId: '',
+  apiKey: 'AIzaSyDBkYuPLrJbxpgqG8zKkG1IE36o22wgSEU',
+  authDomain: 'advait-clinic-app.firebaseapp.com',
+  projectId: 'advait-clinic-app',
+  storageBucket: 'advait-clinic-app.firebasestorage.app',
+  messagingSenderId: '1038191919666',
+  appId: '1:1038191919666:web:fa6402f06371d7a82cb22b',
 }
 
 export const isFirebaseConfigured = () =>

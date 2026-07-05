@@ -64,29 +64,26 @@ To make a production build (deployable to Firebase Hosting, Netlify, Vercel…):
 npm run build      # output goes to dist/
 ```
 
-## Where is the data? (Cloud sync — ACTIVE)
+## Where is the data? (Firebase — ACTIVE, fully free)
 
-**Cloud sync is on.** The app opens with a single **clinic password**; every device
-that signs in sees the same records instantly.
+Records live in **Firebase** (Google), project **advait-clinic-app**, on the free
+Spark plan — **no billing account attached, so it can never charge anything**.
 
-- Sync server: `server/index.js`, deployed on Railway as service **sync-api**
-  (<https://sync-api-production-2b8b.up.railway.app>), storing one JSON file on a
-  persistent volume at `/data/clinic.json`.
-- The app talks to it via `src/data/remoteAdapter.js`; the server URL lives in
-  `src/sync-config.js` (set it to `''` to fall back to on-device storage).
-- **Clinic password**: set as the `CLINIC_PASSWORD` variable on the sync-api service.
-  To change it: `railway variable set "CLINIC_PASSWORD=new-password" --service sync-api`
-  (everyone must sign in again afterwards).
-- Auth: the password is exchanged for a bearer token (HMAC, no user database);
-  all data endpoints reject requests without it. Traffic is HTTPS end to end.
+- Sign-in: email **advaitclinic@gmail.com** (pre-filled on the login screen) with the
+  clinic password. Every signed-in device sees the same records instantly.
+- Database: Cloud Firestore in **asia-south1 (Mumbai)**. Security rules
+  ([firestore.rules](firestore.rules)) allow access only to signed-in users.
+- Console (admin view): <https://console.firebase.google.com/project/advait-clinic-app>
+  — change the password under Authentication → Users → ⋮ → Reset password, or add
+  more staff accounts under Authentication → Add user.
+- Free-tier limits (per day): 50k reads / 20k writes — a clinic uses a tiny
+  fraction of this.
 - Still take weekly backups from Settings — belt and braces.
 
-Redeploying the sync server after changes: copy `server/` contents to an empty
-folder, `railway link -p <project-id> -s sync-api`, then `railway up --detach -y`
-(deploying from a subfolder of the linked repo uploads the whole repo — that's why
-the copy).
+The previous self-hosted sync server (`server/`, Railway) is retired; its code stays
+in the repo only as reference. `src/sync-config.js` (empty SYNC_URL) keeps it off.
 
-## Connecting Firebase instead (optional alternative)
+## Firebase setup (already done — kept for reference)
 
 The free Firebase plan is far more than a clinic needs (50k reads/20k writes per day).
 Once connected, data is backed up in the cloud automatically and the same records can

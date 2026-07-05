@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
 export default function Login() {
-  const [email, setEmail] = useState('')
+  const [email, setEmail] = useState('advaitclinic@gmail.com')
   const [password, setPassword] = useState('')
   const [mode, setMode] = useState('signin')
   const [error, setError] = useState('')

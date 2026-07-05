@@ -1,3 +1,3 @@
-// URL of the clinic's cloud sync server (running on Railway).
-// Set to '' to keep data only on this device.
-export const SYNC_URL = 'https://sync-api-production-2b8b.up.railway.app'
+// Old self-hosted sync server (retired — Firebase is used now, see firebase-config.js).
+// Set to a server URL to switch back to clinic-password sync mode.
+export const SYNC_URL = ''
