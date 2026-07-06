@@ -11,6 +11,13 @@ export const useStore = () => useContext(StoreContext)
 
 const MODE = isFirebaseConfigured() ? 'firebase' : SYNC_URL ? 'cloud' : 'local'
 
+// Clean up leftovers from the pre-Firebase versions (on-device sample records
+// and the old sync token) so old devices don't show stale data.
+if (MODE === 'firebase') {
+  localStorage.removeItem('advait-clinic-data')
+  localStorage.removeItem('advait-sync-token')
+}
+
 export function StoreProvider({ children }) {
   const [adapter, setAdapter] = useState(
     MODE === 'local' ? localAdapter : MODE === 'cloud' ? remoteAdapter : null,
